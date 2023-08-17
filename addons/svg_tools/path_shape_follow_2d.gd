@@ -9,7 +9,26 @@ extends Node2D
 ## based on a look ahead. It can treat the path as a loop, or not, as required.
 
 
-## The [PathShape2D] resource from which to generate this nodes position, and
+## Possible modes for [member progress_mode]
+enum ProgressMode {
+	RATIO_OF_TOTAL_LENGTH, ## [member progress] as a ratio of the
+		## baked points' size.
+		## Use 0.0 and 1.0 for the start and end of the path.
+	PIXELS, ## [member progress] represents pixel distance from
+		## the start of the path. This wraps, and negative values will be
+		## measured backwards from the end.
+}
+@export var progress_mode :ProgressMode = ProgressMode.RATIO_OF_TOTAL_LENGTH:
+	set(value):
+		if path is PathShape2D:
+			if progress_mode == ProgressMode.PIXELS:
+				if value == ProgressMode.RATIO_OF_TOTAL_LENGTH:
+					progress = pixels_to_ratio(progress)
+			elif progress_mode == ProgressMode.RATIO_OF_TOTAL_LENGTH:
+				if value == ProgressMode.PIXELS:
+					progress = ratio_to_pixels(progress)
+		progress_mode = value
+## The [PathShape2D] resource from which to generate this node's position, and
 ## optionally rotation
 @export var path :PathShape2D:
 	set(value):
@@ -49,26 +68,69 @@ extends Node2D
 		_on_changed()
 
 
+func _enter_tree():
+	# set meta for the SVGTools plugin
+	set_meta("_svg_tools_path_property", "path")
+	if path != null:
+		_on_changed()
+
+
 func _on_changed() -> void:
 	if path == null:
 		return
-	var f: float
-	if loop:
-		f = wrapf(progress, 0.0, 1.0)
-	else:
-		f = clamp(progress, 0.0, 1.0)
+	var f := get_ratio_progress()
 	position = path.sample(f)
 	if ! rotates:
 		return
-	
+	var lookahead := get_ratio_lookahead()
+	rotation = position.angle_to_point(path.sample(lookahead.point))
+	if lookahead.reversed:
+		rotate(-PI)
+
+
+func pixels_to_ratio(pixels :float) -> float:
+	return pixels / path.get_baked_length()
+
+
+func ratio_to_pixels(ratio :float) -> float:
+	return ratio * path.get_baked_length()
+
+
+func get_ratio_progress() -> float:
+	var f: float
+	match progress_mode:
+		ProgressMode.RATIO_OF_TOTAL_LENGTH:
+			f = progress
+		ProgressMode.PIXELS:
+			f = pixels_to_ratio(progress)
 	if loop:
-		rotation = position.angle_to_point(
-				path.sample(wrapf(f + lookahead, 0.0, 1.0)))
+		f = wrapf(f, 0.0, 1.0)
 	else:
-		var f2 = f + lookahead
-		if f2 <= 1.0:
-			rotation = position.angle_to_point(path.sample(f2))
-		else:
-			f2 = f - lookahead
-			if f2 >= 0:
-				rotation = path.sample(f2).angle_to_point(position)
+		f = clamp(f, 0.0, 1.0)
+	return f
+
+
+func get_ratio_lookahead() -> Dictionary:
+	var f: float
+	var reversed := false
+	if lookahead < 0:
+		reversed = true
+	match progress_mode:
+		ProgressMode.RATIO_OF_TOTAL_LENGTH:
+			f = progress + lookahead
+		ProgressMode.PIXELS:
+			f = pixels_to_ratio(progress + lookahead)
+	if loop:
+		f = wrapf(f, 0, 1.0)
+	elif f > 1.0 or f < 0.0:
+		match progress_mode:
+			ProgressMode.RATIO_OF_TOTAL_LENGTH:
+				f = progress - lookahead
+			ProgressMode.PIXELS:
+				f = pixels_to_ratio(progress - lookahead)
+		f = clamp(f, 0.0, 1.0)
+		reversed = ! reversed
+	return {
+		"point": f,
+		"reversed": reversed
+	}

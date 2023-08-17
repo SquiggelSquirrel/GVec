@@ -38,6 +38,10 @@ var _awaiting_deferred_update := false
 
 
 func _process(_delta):
+	if ! path_in is PathShape2D:
+		return
+	if ! path_out is PathShape2DWritable:
+		return
 	match update_mode:
 		UpdateMode.PROCESS_FRAME:
 			_update()
@@ -79,8 +83,7 @@ func _update():
 				if weight == 0.0:
 					continue
 				var bone := skeleton.get_bone(bone_index)
-				var rest_transform := skeleton.get_bone_local_pose_override(
-						bone_index)
+				var rest_transform := bone.get_skeleton_rest()
 				var pose_transform := bone.get_relative_transform_to_parent(
 						skeleton)
 				var resting_point := point * rest_transform

@@ -105,21 +105,7 @@ func sample(f :float) -> Vector2:
 ## PathShape2D sub-classes should only override this if
 ## different logic is needed.
 func sample_baked(f :float) -> Vector2:
-	var remaining_distance := get_baked_length() * f
-	var points := get_baked_points()
-	if points.size() == 0:
-		return Vector2.ZERO
-	if points.size() == 1:
-		return points[0]
-	var previous_point := points[0]
-	for i in range(1, points.size()):
-		var point = points[i]
-		var distance = previous_point.distance_to(point)
-		if distance > remaining_distance:
-			return previous_point.move_toward(point, remaining_distance)
-		remaining_distance -= distance
-		previous_point = point
-	return previous_point
+	return sample_points(get_baked_points(), f)
 
 
 ## Calculate and return the length of the path, based on the points returned by
@@ -129,10 +115,7 @@ func sample_baked(f :float) -> Vector2:
 ## if different logic is required.
 func _calculate_baked_length() -> float:
 	var points := get_baked_points()
-	var length: float = 0.0
-	for i in range(1, points.size()):
-		length += points[i].distance_to(points[i-1])
-	return length
+	return path_length(points)
 
 
 ## Calculate and return a series of points along the path. This method does not
@@ -164,3 +147,25 @@ func _calculate_segment_length(segment_index :int) -> float:
 ## (Otherwise, will simply call [method _calculate_baked_points])
 func _calculate_segment_points(_segment_index: int) -> PackedVector2Array:
 	return _calculate_baked_points()
+
+static func sample_points(points: PackedVector2Array, f :float) -> Vector2:
+	var remaining_distance := path_length(points) * f
+	if points.size() == 0:
+		return Vector2.ZERO
+	if points.size() == 1:
+		return points[0]
+	var previous_point := points[0]
+	for i in range(1, points.size()):
+		var point = points[i]
+		var distance = previous_point.distance_to(point)
+		if distance > remaining_distance:
+			return previous_point.move_toward(point, remaining_distance)
+		remaining_distance -= distance
+		previous_point = point
+	return previous_point
+
+static func path_length(points: PackedVector2Array) -> float:
+	var length: float = 0.0
+	for i in range(1, points.size()):
+		length += points[i].distance_to(points[i-1])
+	return length

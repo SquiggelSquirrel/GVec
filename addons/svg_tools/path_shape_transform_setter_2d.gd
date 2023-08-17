@@ -14,6 +14,11 @@ extends Marker2D
 @export var path := PathShape2DTransform.new()
 
 
+func _enter_tree():
+	# set meta for the SVGTools plugin
+	set_meta("_svg_tools_path_property", "path")
+
+
 func _ready():
 	set_notify_local_transform(true)
 

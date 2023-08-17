@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bd8s2hkb3cxyf"]
+
+[ext_resource type="Script" path="res://Tentacle.gd" id="1_7po4u"]
+
+[node name="TentacleTest" type="Node2D"]
+
+[node name="Tentacle" type="Node2D" parent="."]
+script = ExtResource("1_7po4u")
+fill_color = Color(0, 0, 0, 1)
+uv_mode = null
+stroke_color = Color(0, 0, 0, 1)

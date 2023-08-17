@@ -18,6 +18,7 @@ enum SegmentType {
 
 # An internal array of Segment objects - not intended for direct access
 var _segments: Array[SVGSegment] = []
+var _is_ready := false
 
 
 # ----------
@@ -115,6 +116,10 @@ func _get(property):
 				return SegmentType.ARC
 		else:
 			return segment.get(segment_property)
+
+
+func _init():
+	set_deferred("_is_ready", true)
 
 
 # ----------
@@ -338,11 +343,11 @@ func _calculate_baked_points() -> PackedVector2Array:
 	return points
 
 
-func _calculate_segment_baked_length(segment_index: int) -> float:
+func _calculate_segment_length(segment_index: int) -> float:
 	return _segments[segment_index].get_baked_length()
 
 
-func _calculate_segment_baked_points(segment_index: int) -> PackedVector2Array:
+func _calculate_segment_points(segment_index: int) -> PackedVector2Array:
 	return _segments[segment_index].get_baked_points()
 
 
@@ -358,6 +363,8 @@ func _get_property_list_segment_count():
 
 
 func _mirror_handles_backward(start_index :int) -> void:
+	if ! _is_ready:
+		return
 	for i in range(start_index, 0, -1):
 		var prev = i - 1
 		if ! _segments[i].get("mirror_previous_angle"):
@@ -379,6 +386,8 @@ func _mirror_handles_backward(start_index :int) -> void:
 
 
 func _mirror_handles_forward(start_index :int) -> void:
+	if ! _is_ready:
+		return
 	for i in range(start_index, _segments.size() - 1):
 		var next = i + 1
 		if ! _segments[next].get("mirror_previous_angle"):
