@@ -1,0 +1,34 @@
+[gd_scene load_steps=8 format=3 uid="uid://biu784x2w6bqc"]
+
+[ext_resource type="Script" path="res://addons/g_vec/plugin/nodes/g_vec_path_to_points.gd" id="1_xv5di"]
+[ext_resource type="Script" path="res://addons/g_vec/plugin/resources/g_vec_path_svg.gd" id="2_f1gye"]
+[ext_resource type="Script" path="res://addons/g_vec/plugin/resources/g_vec_path_combination.gd" id="2_xdwk4"]
+[ext_resource type="Script" path="res://addons/g_vec/plugin/resources/g_vec_path_ellipse.gd" id="3_3mhxq"]
+
+[sub_resource type="Resource" id="Resource_lvtht"]
+script = ExtResource("2_f1gye")
+"[<Resource#-9223364417532371836>]" = null
+segment_count = 1
+caching_enabled = true
+
+[sub_resource type="Resource" id="Resource_60rgm"]
+script = ExtResource("3_3mhxq")
+radii = Vector2(1.1, 1)
+angle = 0.0
+center = Vector2(0, 0)
+bake_interval = 5.0
+caching_enabled = true
+
+[sub_resource type="Resource" id="Resource_fqgt4"]
+script = ExtResource("2_xdwk4")
+paths = Array[Resource("res://addons/g_vec/plugin/resources/g_vec_path.gd")]([SubResource("Resource_lvtht"), SubResource("Resource_60rgm")])
+caching_enabled = true
+metadata/_svg_tools_path_property = "paths"
+
+[node name="Test" type="Node2D"]
+
+[node name="GVecPathToPoints" type="Node" parent="."]
+script = ExtResource("1_xv5di")
+path = SubResource("Resource_fqgt4")
+target_property = "AUTO"
+metadata/_svg_tools_path_property = "path"
