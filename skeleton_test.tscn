@@ -1,0 +1,33 @@
+[gd_scene load_steps=4 format=3 uid="uid://bxtou7nr6vrsm"]
+
+[ext_resource type="Script" path="res://bone_test.gd" id="1_sroo4"]
+[ext_resource type="Texture2D" uid="uid://b30mmm1h4buci" path="res://icon.svg" id="3_ptgwj"]
+[ext_resource type="Script" path="res://bone_test3.gd" id="4_a6ihd"]
+
+[node name="Skeleton" type="Skeleton2D"]
+position = Vector2(30, 12)
+
+[node name="Bone2D" type="Bone2D" parent="."]
+position = Vector2(17, 23)
+rotation = -0.642771
+scale = Vector2(1, 1)
+rest = Transform2D(0.81607, -0.577954, 0.577954, 0.81607, 17, 23)
+
+[node name="Bone2D" type="Bone2D" parent="Bone2D"]
+position = Vector2(3.98758, -17.0029)
+rotation = 0.33217
+scale = Vector2(1, 1)
+rest = Transform2D(0.484009, 0.875063, -0.875063, 0.484009, 3.53477, -17.1028)
+auto_calculate_length_and_angle = false
+length = 16.0
+bone_angle = 0.0
+script = ExtResource("1_sroo4")
+
+[node name="Marker2D" type="Marker2D" parent="."]
+
+[node name="Icon" type="Sprite2D" parent="Marker2D"]
+position = Vector2(2.19345e-05, 1.28746e-05)
+rotation = -0.759948
+scale = Vector2(0.01, 0.01)
+texture = ExtResource("3_ptgwj")
+script = ExtResource("4_a6ihd")

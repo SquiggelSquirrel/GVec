@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://son3cmghidd0"]
-
-[ext_resource type="Script" path="res://addons/g_vec/scene/handles/g_vec_tools_handles_svg.gd" id="1_8w75r"]
-
-[node name="GVecToolsHandlesSVG" type="Node"]
-script = ExtResource("1_8w75r")

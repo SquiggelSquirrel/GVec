@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3 uid="uid://bko8cxwffxuca"]
+
+[ext_resource type="Texture2D" uid="uid://clqr3sdcdjr6u" path="res://addons/g_vec/plugin/icons/add.svg" id="1_l1y77"]
+[ext_resource type="Script" path="res://addons/g_vec/plugin/menu/type.gd" id="2_ehnqo"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_cb0th"]
+allow_unpress = true
+
+[node name="GVecToolsControlsPanel" type="HBoxContainer"]
+
+[node name="Add" type="Button" parent="."]
+layout_mode = 2
+tooltip_text = "Add Points"
+focus_mode = 0
+theme_type_variation = &"FlatButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_cb0th")
+icon = ExtResource("1_l1y77")
+metadata/icon_name = "CurveCreate"
+
+[node name="Type" type="MenuButton" parent="."]
+layout_mode = 2
+theme_type_variation = &"FlatMenuButton"
+text = "Type"
+flat = false
+item_count = 7
+popup/item_0/text = "Line"
+popup/item_0/checkable = 2
+popup/item_0/id = 0
+popup/item_1/text = "Quadratic"
+popup/item_1/checkable = 2
+popup/item_1/id = 1
+popup/item_2/text = "Cubic"
+popup/item_2/checkable = 2
+popup/item_2/checked = true
+popup/item_2/id = 2
+popup/item_3/text = "Arc"
+popup/item_3/checkable = 2
+popup/item_3/id = 3
+popup/item_4/text = ""
+popup/item_4/id = 4
+popup/item_4/separator = true
+popup/item_5/text = "Mirror Angles"
+popup/item_5/checkable = 1
+popup/item_5/checked = true
+popup/item_5/id = 5
+popup/item_6/text = "Mirror Lengths"
+popup/item_6/checkable = 1
+popup/item_6/checked = true
+popup/item_6/id = 6
+script = ExtResource("2_ehnqo")

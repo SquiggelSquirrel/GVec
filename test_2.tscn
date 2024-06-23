@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://bonffn5h3hi6v"]
+
+[ext_resource type="Script" path="res://test2.gd" id="1_jq5sj"]
+[ext_resource type="Script" path="res://addons/g_vec/scene/nodes/g_vec_path_to_points.gd" id="2_nf2br"]
+[ext_resource type="Script" path="res://addons/g_vec/scene/resources/svg_segment/g_vec_segment_arc_from_center.gd" id="3_2pb7j"]
+[ext_resource type="Script" path="res://addons/g_vec/scene/resources/g_vec_path_svg.gd" id="4_37h12"]
+
+[sub_resource type="Resource" id="Resource_id8xt"]
+script = ExtResource("3_2pb7j")
+radii = Vector2(1, 1)
+ellipse_rotation = 0.0
+center = Vector2(5, 5)
+central_angle_parameter = 3.28645
+start_point = Vector2(0, 0)
+end_point = Vector2(9.22585, 10.6694)
+bake_interval = 5.0
+
+[sub_resource type="Resource" id="Resource_6a3f4"]
+script = ExtResource("4_37h12")
+_segments = Array[Resource("res://addons/g_vec/scene/resources/svg_segment/g_vec_segment.gd")]([SubResource("Resource_id8xt")])
+caching_enabled = true
+
+[node name="Test2" type="Node2D"]
+script = ExtResource("1_jq5sj")
+internal_var = 0
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, 0, 4.09662, -2.01312, 8.56968, -1.10388, 11.5553, 2.34884, 11.8093, 6.9063, 9.22585, 10.6694)
+
+[node name="Node" type="Node" parent="Polygon2D"]
+script = ExtResource("2_nf2br")
+path = SubResource("Resource_6a3f4")
+target_property = "AUTO"
+metadata/_svg_tools_path_property = "path"
