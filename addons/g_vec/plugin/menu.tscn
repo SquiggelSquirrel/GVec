@@ -6,7 +6,7 @@
 [sub_resource type="ButtonGroup" id="ButtonGroup_cb0th"]
 allow_unpress = true
 
-[node name="GVecToolsControlsPanel" type="HBoxContainer"]
+[node name="MenuControls" type="HBoxContainer"]
 
 [node name="Add" type="Button" parent="."]
 layout_mode = 2
@@ -18,7 +18,7 @@ button_group = SubResource("ButtonGroup_cb0th")
 icon = ExtResource("1_l1y77")
 metadata/icon_name = "CurveCreate"
 
-[node name="Type" type="MenuButton" parent="."]
+[node name="TypeMenu" type="MenuButton" parent="."]
 layout_mode = 2
 theme_type_variation = &"FlatMenuButton"
 text = "Type"

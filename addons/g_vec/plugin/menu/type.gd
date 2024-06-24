@@ -43,7 +43,6 @@ func _on_type_change(pressed_index: int) -> void:
 	current_type = pressed_index
 	var p := get_popup()
 	for index in Types.values():
-		print("Set item checked ", index, " ", pressed_index == index)
 		p.set_item_checked(index, index == pressed_index)
 
 
