@@ -2,7 +2,7 @@
 class_name GVecPlugin
 extends EditorPlugin
 
-const MenuControls := preload("menu.tscn")
+const MenuControls := preload("menu_controls.tscn")
 const InputHandler := preload("input_handler.gd")
 var menu_controls: HBoxContainer
 var input_handler := InputHandler.new()
@@ -42,6 +42,7 @@ func _exit_tree() -> void:
 # action required
 func _edit(object: Object) -> void:
 	editor_node = object
+	menu_controls.visible = bool( ! editor_node == null)
 	if editor_node == null and input_handler.adding:
 		input_handler.end_action_add(self)
 

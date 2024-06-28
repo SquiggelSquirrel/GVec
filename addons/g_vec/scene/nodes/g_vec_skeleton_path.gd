@@ -1,6 +1,6 @@
 @tool
-class_name GVecSkeletonPath
-extends Node
+class_name GVecSkeletonWeights
+extends Node2D
 
 ## Apply the pose of a [Skeleton2D] to the points output by a [GVecPath].
 ##
@@ -18,13 +18,15 @@ enum UpdateMode {
 ## When to update the output path points - see [enum UpdateMode]
 @export var update_mode: UpdateMode = UpdateMode.PROCESS_FRAME
 
+## The [Skeleton2D] to use
+@export var skeleton: Skeleton2D
+
 ## The [GVecPath] to get points from
 @export var path_in :GVecPath
 
 ## The [GVecPathWritable] to write points to
 @export var path_out :GVecPathWritable
 
-@export var root_bone_index: int = -1
 @export var recalculate_weights := false:
 	set(value):
 		if value:
@@ -66,14 +68,12 @@ func update_weights() -> void:
 	weight_bone_indices.clear()
 	weights.clear()
 	
-	var skeleton = get_parent() as Skeleton2D
 	if skeleton == null:
 		return
-		
-	for bone_index in skeleton.get_bone_count():
-		var bone := skeleton.get_bone(bone_index)
-		if _get_bone_weight_sdf(bone) != null:
-			weight_bone_indices.append(bone_index)
+	
+	for weight_node in get_children():
+		if weight_node.bone_index > -1:
+			weight_bone_indices.append(weight_node.bone_index)
 	
 	var weights_count := weight_bone_indices.size()
 	for segment_index in path_in.get_segment_count():
@@ -86,10 +86,10 @@ func update_weights() -> void:
 			var point := segment[point_index]
 			
 			var raw_weights: PackedFloat32Array = []
-			for weight_index in weights_count:
-				var bone := skeleton.get_bone(weight_bone_indices[weight_index])
-				var sdf := _get_bone_weight_sdf(bone)
-				raw_weights.append(sdf.get_distance_at_global_point(skeleton.to_global(point)))
+			for weight_node in get_children():
+				if ! bool(weight_node.bone_index > -1):
+					continue
+				raw_weights.append(weight_node.get_distance_at_global_point(to_global(point)))
 			
 			var total_weight := 0.0
 			for weight in raw_weights:
@@ -101,25 +101,16 @@ func update_weights() -> void:
 		weights.append(segment_weights)
 
 
-func _get_bone_weight_sdf(bone: Bone2D) -> GVecSdf:
-	for child in bone.get_children():
-		if child is GVecSdf:
-			return child
-	return null
-
-
 func _get_bone_pose_transform(bone: Bone2D) -> Transform2D:
 	var rest := bone.rest
 	var p := bone.get_parent()
 	while p is Bone2D:
 		rest = p.rest * rest
 		p = p.get_parent()
-	assert(p is Skeleton2D)
 	return rest * bone.get_relative_transform_to_parent(p).affine_inverse()
 
 
 func _update():
-	var skeleton = get_parent() as Skeleton2D
 	if skeleton == null:
 		return
 	

@@ -1,5 +1,7 @@
 @tool
 extends MenuButton
+# This script handles enabling/disabling options such as "mirror angles"
+# and "mirror lengths", depending on the segment type selected.
 
 enum Types {
 	LINE = 0,
