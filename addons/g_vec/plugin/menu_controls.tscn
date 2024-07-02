@@ -1,12 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://bdrty4jmc4l4n"]
+[gd_scene load_steps=5 format=3 uid="uid://bdrty4jmc4l4n"]
 
 [ext_resource type="Texture2D" uid="uid://clqr3sdcdjr6u" path="res://addons/g_vec/plugin/icons/add.svg" id="1_l1y77"]
+[ext_resource type="Script" path="res://addons/g_vec/plugin/menu/menu_controls.gd" id="1_o2air"]
 [ext_resource type="Script" path="res://addons/g_vec/plugin/menu/type_popup.gd" id="2_8x4o2"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_cb0th"]
 allow_unpress = true
 
 [node name="MenuControls" type="HBoxContainer"]
+script = ExtResource("1_o2air")
 
 [node name="Add" type="Button" parent="."]
 layout_mode = 2

@@ -1,5 +1,5 @@
 @tool
-class_name GVecEditorPoint
+class_name GVecEditorHandle
 extends Node2D
 
 @export var segment_index := 0
@@ -12,6 +12,7 @@ extends Node2D
 		"ellipse_center",
 		"radii"
 		) var property_name: String
+var unmatched_property := false
 
 
 func _ready() -> void:
@@ -26,6 +27,8 @@ func _enter_tree() -> void:
 func _get_configuration_warnings() -> PackedStringArray:
 	if get_editor() == null:
 		return ["This node expects a GVecEditorSVG ancestor"]
+	if unmatched_property:
+		return ["This node did not match a property in parent's SVGPath"]
 	return []
 
 

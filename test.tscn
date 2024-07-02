@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://addons/g_vec/scene/resources/g_vec_path_svg.gd" id="2_tqle2"]
 [ext_resource type="Script" path="res://addons/g_vec/scene/resources/svg_segment/g_vec_segment_cubic.gd" id="2_wodtg"]
-[ext_resource type="Script" path="res://addons/g_vec/scene/nodes/g_vec_editor_point.gd" id="3_2bmwv"]
+[ext_resource type="Script" path="res://addons/g_vec/scene/nodes/g_vec_editor_handle.gd" id="3_2bmwv"]
 [ext_resource type="Script" path="res://addons/g_vec/scene/nodes/g_vec_sdf/g_vec_sdf_circle.gd" id="5_2l011"]
 [ext_resource type="Script" path="res://addons/g_vec/scene/nodes/g_vec_editor_svg.gd" id="6_qnf37"]
 [ext_resource type="Script" path="res://addons/g_vec/scene/nodes/g_vec_bone_weight.gd" id="7_d7um5"]

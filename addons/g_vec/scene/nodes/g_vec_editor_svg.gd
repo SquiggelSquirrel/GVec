@@ -24,7 +24,11 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if ! display:
 		return
-	Guides.draw_guides(path, self)
+	var handle_out := get_handle(path.get_segment_count(), "start_control_point")
+	if handle_out:
+		Guides.draw_guides(path, self, to_local(handle_out.global_position))
+	else:
+		Guides.draw_guides(path, self)
 
 
 func _notification(what: int) -> void:
@@ -45,77 +49,90 @@ func update_path() -> void:
 	queue_redraw()
 
 
+## Add a new segment (or a start point if no start point is set)
+## Return end point handle or start point handle
 func add_segment(
 		type: GVecPathSVG.SegmentType,
-		end_position: Vector2,
-		handle_out_position := Vector2.ZERO
-		) -> GVecEditorPoint:
-	var index := path.get_segment_count()
+		end_point: Vector2,
+		start_control_point := Vector2.ZERO,
+		end_control_point := Vector2.ZERO,
+		parent_nodepath: NodePath = ^"."
+		) -> GVecEditorHandle:
+	var parent: Node2D = get_node(parent_nodepath)
+	var new_segment_index := path.get_segment_count()
 	
-	if index == 0 and get_start_point() == null:
-		return add_point(self, 0, "start_point", end_position)
+	if new_segment_index == 0 and get_start_handle() == null:
+		return add_handle(
+				parent,
+				new_segment_index,
+				"start_point",
+				end_point)
 	
-	var end_point := add_point(self, index, "end_point", end_position)
+	var previous_handle := get_end_handle(new_segment_index - 1)
+	var end_handle := add_handle(
+			parent,
+			new_segment_index,
+			"end_point",
+			end_point)
 	
-	var previous_point := get_end_point(index - 1)
 	match type:
 		GVecPathSVG.SegmentType.QUADRATIC:
-			add_point(
-					previous_point,
-					index,
+			add_handle(
+					previous_handle,
+					new_segment_index,
 					"control_point",
-					handle_out_position)
+					start_control_point)
 		GVecPathSVG.SegmentType.CUBIC:
-			add_point(
-					previous_point,
-					index,
+			add_handle(
+					previous_handle,
+					new_segment_index,
 					"start_control_point",
-					handle_out_position)
-			add_point(
-					end_point,
-					index,
+					start_control_point)
+			add_handle(
+					end_handle,
+					new_segment_index,
 					"end_control_point",
-					end_position)
+					end_control_point)
 		GVecPathSVG.SegmentType.ARC_CENTER, \
 		GVecPathSVG.SegmentType.ARC_END:
-			var center := add_point(
-					self,
-					index,
+			var center_handle := add_handle(
+					parent,
+					new_segment_index,
 					"ellipse_center",
-					lerp(previous_point.position, end_position, 0.5))
-			add_point(
-					center,
-					index,
+					lerp(previous_handle.position, end_point, 0.5))
+			add_handle(
+					center_handle,
+					new_segment_index,
 					"radii",
 					Vector2.ONE
-					* previous_point.position.distance_to(end_position)
+					* previous_handle.position.distance_to(end_point)
 					* 0.5)
-			previous_point.move_to_front()
+			end_handle.move_to_front()
 	
-	path.insert_new_segment(index)
-	path.set_segment_property(index, "segment_type", type)
-	return end_point
+	path.insert_new_segment(new_segment_index)
+	path.set_segment_property(new_segment_index, "segment_type", type)
+	return end_handle
 
 
 func remove_segment() -> void:
 	for i in range(get_child_count() -1 , -1, -1):
 		var child = get_child(i)
-		if child is GVecEditorPoint:
+		if child is GVecEditorHandle:
 			child.queue_free()
 			remove_child(child)
 			break
-	var last_handle := get_editor_points()[-1]
+	var last_handle := get_editor_handles()[-1]
 	if last_handle.name in ["HandleOut", "Handle"]:
 		last_handle.queue_free()
 
 
-func add_point(
+func add_handle(
 		parent: Node2D,
 		index: int,
 		property: String,
 		editor_position: Vector2
-		) -> GVecEditorPoint:
-	var point := GVecEditorPoint.new()
+		) -> GVecEditorHandle:
+	var point := GVecEditorHandle.new()
 	point.name = {
 			"start_point": "Start",
 			"end_point": "End",
@@ -136,28 +153,55 @@ func add_point(
 	return point
 
 
-func get_start_point() -> GVecEditorPoint:
-	for node in get_editor_points():
+func get_start_handle() -> GVecEditorHandle:
+	for node in get_editor_handles():
 		if node.property_name == "start_point":
 			return node
 	return null
 
 
-func get_end_point(index: int = path.get_segment_count() - 1) -> GVecEditorPoint:
+func get_end_handle(index: int = path.get_segment_count() - 1) -> GVecEditorHandle:
 	if index == -1:
-		return get_start_point()
-	for node in get_editor_points():
-		if node.property_name == "end_point" and node.segment_index == index:
+		return get_start_handle()
+	return get_handle(index, "end_point")
+	return null
+
+
+func get_handle(index: int, property_name: StringName) -> GVecEditorHandle:
+	for node in get_editor_handles():
+		if node.segment_index == index and node.property_name == property_name:
 			return node
 	return null
 
 
-func get_editor_points(root_node: Node2D = self) -> Array[GVecEditorPoint]:
-	var editor_points: Array[GVecEditorPoint] = []
+func get_editor_handles(root_node: Node2D = self) -> Array[GVecEditorHandle]:
+	var editor_handles: Array[GVecEditorHandle] = []
 	for node in root_node.get_children():
 		if ! node is Node2D:
 			continue
-		if node is GVecEditorPoint:
-			editor_points.append(node)
-		editor_points.append_array(get_editor_points(node))
-	return editor_points
+		if node is GVecEditorHandle:
+			editor_handles.append(node)
+		editor_handles.append_array(get_editor_handles(node))
+	return editor_handles
+
+
+func set_end_control_point(control_point: Vector2) -> void:
+	var end_handle := get_end_handle()
+	if end_handle == null:
+		return
+	
+	var nested_handles := get_editor_handles(end_handle)
+	var nested_handle_positions: PackedVector2Array = []
+	for handle in nested_handles:
+		nested_handle_positions.append(handle.global_position)
+	
+	var control_point_global := to_global(control_point)
+	end_handle.look_at(control_point_global)
+	end_handle.rotate(PI)
+	
+	for i in nested_handles.size():
+		var handle := nested_handles[i]
+		if handle.property_name == "end_control_point":
+			handle.global_position = control_point_global
+		else:
+			handle.global_position = nested_handle_positions[i]
