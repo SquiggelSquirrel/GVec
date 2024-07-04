@@ -24,7 +24,6 @@ func input(plugin: GVecPlugin, event: InputEvent) -> bool:
 				and event.button_index == MOUSE_BUTTON_LEFT
 				and event.is_pressed()):
 			return false
-		print("Mouse down")
 		if handle_out == null or ! handle_out.is_finite():
 			handle_out = plugin.editor_node.path.get_vector_out()
 		adding = true
@@ -42,12 +41,10 @@ func input(plugin: GVecPlugin, event: InputEvent) -> bool:
 		return true
 	
 	if ! Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		print("Mouse up")
 		end_action_add(plugin)
 		return true
 	
 	if event is InputEventMouseMotion:
-		print("Mouse move")
 		handle_out = position
 		if plugin.menu_controls.get_mirror_angles():
 			var offset_out := handle_out - start_position

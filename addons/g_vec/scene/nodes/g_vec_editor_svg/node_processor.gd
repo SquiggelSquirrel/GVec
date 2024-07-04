@@ -12,20 +12,24 @@ static func process_nodes(editor_node: GVecEditorSVG) -> void:
 
 
 static func erase_missing_segments(editor_node: GVecEditorSVG) -> void:
+	if editor_node.path.get_segment_count() == 0:
+		return
+	
 	var nodes := editor_node.get_editor_handles()
-	var missing_start_point := bool(editor_node.get_start_handle() == null)
-	if missing_start_point:
-		for node in nodes:
-			node.segment_index -= 1
 	
 	var missing_segments := range(0, editor_node.path.get_segment_count())
 	for node in nodes:
 		if node.property_name == "end_point":
 			missing_segments.erase(node.segment_index)
 	
+	missing_segments.reverse()
+	var missing_start_point := bool(editor_node.get_start_handle() == null)
+	if missing_start_point and missing_segments[-1] != 0:
+		missing_segments.append(0)
+		
 	for node in nodes:
-		for segment_index in missing_segments:
-			if segment_index < node.segment_index:
+		for missing_segment_index in missing_segments:
+			if node.segment_index > missing_segment_index:
 				node.segment_index -= 1
 	
 	for node in nodes:
@@ -37,17 +41,16 @@ static func erase_missing_segments(editor_node: GVecEditorSVG) -> void:
 			else:
 				node.name = "End" + String.num_int64(node.segment_index)
 	
-	missing_segments.reverse()
-	for segment_index in missing_segments:
+	for missing_segment_index in missing_segments:
 		# Get the start point before removing the first segment;
 		# Set the start point on the new first segment after
-		var start_point = editor_node.path.get_segment_property(0, "start_point")
-		editor_node.path.remove_segment(segment_index)
-		if segment_index == 0:
-			editor_node.path.set_segment_property(0, "start_point", start_point)
-	
-	if missing_start_point:
-		editor_node.path.remove_segment(0)
+		if missing_segment_index > 0:
+			editor_node.path.remove_segment(missing_segment_index)
+		else:
+			var start_point = editor_node.path.get_segment_property(0, "start_point")
+			editor_node.path.remove_segment(0)
+			if editor_node.path.get_segment_count() > 0:
+				editor_node.path.set_segment_property(0, "start_point", start_point)
 
 
 static func process_node(

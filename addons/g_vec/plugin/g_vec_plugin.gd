@@ -41,14 +41,19 @@ func _exit_tree() -> void:
 # Pass to the target manager and listen for signals to determine any additional
 # action required
 func _edit(object: Object) -> void:
+	if _node_get_editor(object) == editor_node:
+		return
+	
 	if editor_node is GVecEditorSVG:
 		editor_node.display = false
+	if input_handler.adding:
+		input_handler.end_action_add(self)
+	
 	selected_node = object
 	editor_node = _node_get_editor(object)
+	
 	menu_controls.set_is_add_checked(false)
 	menu_controls.visible = bool( ! editor_node == null)
-	if editor_node == null and input_handler.adding:
-		input_handler.end_action_add(self)
 	if editor_node is GVecEditorSVG:
 		editor_node.display = true
 

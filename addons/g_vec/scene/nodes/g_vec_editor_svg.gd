@@ -115,15 +115,21 @@ func add_segment(
 
 
 func remove_segment() -> void:
-	for i in range(get_child_count() -1 , -1, -1):
-		var child = get_child(i)
-		if child is GVecEditorHandle:
-			child.queue_free()
-			remove_child(child)
-			break
-	var last_handle := get_editor_handles()[-1]
-	if last_handle.name in ["HandleOut", "Handle"]:
-		last_handle.queue_free()
+	var new_segment_count := path.get_segment_count() - 1
+	
+	if new_segment_count == -1:
+		for handle in get_editor_handles():
+			handle.queue_free()
+		return
+	
+	for handle in get_editor_handles():
+		if handle.property_name == "start_point":
+			continue
+		if handle.segment_index < new_segment_count:
+			continue
+		if handle.segment_index == new_segment_count and handle.property_name == "start_control_point":
+			continue
+		handle.queue_free()
 
 
 func add_handle(
